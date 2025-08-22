@@ -1,0 +1,16 @@
+.config-container {
+    padding: 24px;
+  }
+  
+  .config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+  }
+  
+  mat-card-footer {
+    padding: 0 16px 16px;
+    font-style: italic;
+    color: grey;
+  }

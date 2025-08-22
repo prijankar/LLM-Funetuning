@@ -1,0 +1,22 @@
+# We let pip find the latest compatible versions.
+
+# Core AI & Machine Learning Libraries
+torch
+transformers
+datasets
+peft
+trl
+accelerate
+bitsandbytes
+
+# Data Handling & Database
+pandas
+jira
+sqlalchemy
+psycopg2-binary
+
+# API for local LLM
+ollama
+
+
+unsloth

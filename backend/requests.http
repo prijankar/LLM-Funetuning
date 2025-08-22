@@ -1,0 +1,9 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### Connection with the application
+GET http://localhost:8080
+
+### Connection with Ollama llms
+GET http://localhost:11434

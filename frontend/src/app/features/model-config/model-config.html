@@ -1,0 +1,58 @@
+<div class="config-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Configureer het Fine-Tuning Proces</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="config-form">
+        
+        <mat-form-field>
+          <mat-label>Kies een basismodel</mat-label>
+          <mat-select [(ngModel)]="selectedModel" name="selectedModel">
+            <mat-option *ngFor="let model of availableModels" [value]="model.id">
+              {{ model.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-divider></mat-divider>
+        <h4>Leerparameters</h4>
+
+        <mat-form-field>
+          <mat-label>Learning Rate</mat-label>
+          <input matInput type="number" [(ngModel)]="hyperparameters.learningRate" name="learningRate" step="0.00001" placeholder="bv. 0.0002">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Aantal Training Epochs</mat-label>
+          <input matInput type="number" [(ngModel)]="hyperparameters.epochs" name="epochs" min="1">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Batch Size</mat-label>
+          <input matInput type="number" [(ngModel)]="hyperparameters.batchSize" name="batchSize" min="1">
+        </mat-form-field>
+
+        <mat-divider></mat-divider>
+        <h4>LoRA Parameters</h4>
+
+        <mat-form-field>
+          <mat-label>LoRA Rank (r)</mat-label>
+          <input matInput type="number" [(ngModel)]="hyperparameters.loraR" name="loraR" min="1">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>LoRA Alpha</mat-label>
+          <input matInput type="number" [(ngModel)]="hyperparameters.loraAlpha" name="loraAlpha" min="1">
+        </mat-form-field>
+
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="onStartFineTuning()">Start Fine-Tuning</button>
+    </mat-card-actions>
+    <mat-card-footer *ngIf="statusMessage">
+      <p>{{ statusMessage }}</p>
+    </mat-card-footer>
+  </mat-card>
+</div>

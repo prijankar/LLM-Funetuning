@@ -1,0 +1,114 @@
+<div class="chat-container">
+  <mat-card class="chat-card">
+    <mat-card-header>
+      <mat-card-title>Chat met je Getrainde Model</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content class="card-content">
+      <!-- Input Section -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Beschrijving van een nieuwe Jira Story</mat-label>
+        <textarea 
+          matInput 
+          [(ngModel)]="prompt" 
+          rows="8" 
+          placeholder="Titel: ...
+Beschrijving: ..."
+          [disabled]="isLoading">
+        </textarea>
+      </mat-form-field>
+      
+      <div class="button-container">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="sendPrompt()" 
+          [disabled]="isLoading || !prompt.trim()"
+          class="send-button">
+          Verstuur
+        </button>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoading" class="spinner-container">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span class="loading-text">Model is aan het denken...</span>
+      </div>
+
+      <!-- Response Section -->
+      <div *ngIf="response" class="response-area">
+        <h4>Antwoord van het model:</h4>
+        <div class="response-content">
+          <p>{{ response }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Add some basic styling -->
+<style>
+  .chat-container {
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .chat-card {
+    margin: 16px 0;
+  }
+  
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .send-button {
+    min-width: 120px;
+  }
+  
+  .spinner-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  
+  .response-area {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    max-height: 60vh;
+    overflow-y: auto;
+    border-left: 4px solid #3f51b5;
+  }
+  
+  .response-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 16px;
+    color: #333;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    padding: 8px 0;
+  }
+  
+  .response-content p {
+    margin: 8px 0;
+  }
+  
+  .loading-text {
+    color: #666;
+    font-style: italic;
+  }
+</style>

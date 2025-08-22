@@ -1,0 +1,5 @@
+models:
+  Qwen/Qwen2-0.5B-Instruct:
+    base_model: "Qwen/Qwen2-0.5B-Instruct"
+    max_seq_len: 2048
+    target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]

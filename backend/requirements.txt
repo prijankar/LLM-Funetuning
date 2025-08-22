@@ -1,0 +1,14 @@
+# Core AI & Machine Learning Libraries
+torch
+transformers
+datasets
+peft
+trl
+accelerate
+bitsandbytes
+
+# Data Handling
+pandas
+
+# Jira API Connection
+jira

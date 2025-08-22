@@ -1,0 +1,122 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e9b1a0 0%, #764ba2 100%);
+  padding: 20px;
+  
+  mat-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 12px !important;
+    
+    mat-card-header {
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      
+      mat-card-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #4a4a4a;
+      }
+      
+      mat-card-subtitle {
+        text-align: center;
+        color: #666;
+      }
+    }
+    
+    .register-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      
+      mat-form-field {
+        width: 100%;
+        
+        ::ng-deep .mat-form-field-outline {
+          color: rgba(0, 0, 0, 0.1);
+        }
+        
+        ::ng-deep .mat-form-field-label {
+          color: #666;
+        }
+        
+        input {
+          font-size: 1rem;
+        }
+      }
+      
+      button[type="submit"] {
+        margin-top: 1rem;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        background: linear-gradient(135deg, #e9b1a0 0%, #8c6bad 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(233, 177, 160, 0.4);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+    
+    .status-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      mat-icon {
+        font-size: 1.2rem;
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+      
+      &.error {
+        background-color: #ffebee;
+        color: #c62828;
+      }
+      
+      &:not(.error) {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+      }
+    }
+    
+    mat-card-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      
+      a {
+        color: #8c6bad;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+        
+        &:hover {
+          color: #e9b1a0;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

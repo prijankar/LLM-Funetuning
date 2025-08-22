@@ -1,0 +1,2 @@
+FROM qwen2:0.5b
+# ADAPTER ./models/jira_adapter
