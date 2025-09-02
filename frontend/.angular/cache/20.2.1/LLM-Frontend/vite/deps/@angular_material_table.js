@@ -1,10 +1,11 @@
 import {
+  _DisposeViewRepeaterStrategy
+} from "./chunk-URMGK6DJ.js";
+import "./chunk-46HAYV32.js";
+import {
   ScrollingModule,
   ViewportRuler
 } from "./chunk-HKFE4HNH.js";
-import {
-  _DisposeViewRepeaterStrategy
-} from "./chunk-URMGK6DJ.js";
 import {
   DataSource,
   _RecycleViewRepeaterStrategy,
@@ -13,10 +14,9 @@ import {
   isDataSource
 } from "./chunk-QLFFRAUA.js";
 import "./chunk-7UJZXIJQ.js";
-import "./chunk-46HAYV32.js";
 import {
   MatCommonModule
-} from "./chunk-VSU7C5O2.js";
+} from "./chunk-FN4JEXMO.js";
 import "./chunk-OF33OCWS.js";
 import {
   Directionality
@@ -84,11 +84,11 @@ import {
   ɵɵtextInterpolate1,
   ɵɵviewQuery
 } from "./chunk-2Q52CLZD.js";
+import "./chunk-JRFR6BLO.js";
 import {
   isObservable,
   merge
 } from "./chunk-HWYXSU2G.js";
-import "./chunk-JRFR6BLO.js";
 import {
   BehaviorSubject,
   Subject,

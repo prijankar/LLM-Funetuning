@@ -1,0 +1,49 @@
+<h1 mat-dialog-title>Add New Data Source</h1>
+
+<div mat-dialog-content>
+  <form [formGroup]="dataSourceForm" class="dialog-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Source Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g., Main Jira Project" required>
+      <mat-error *ngIf="dataSourceForm.get('name')?.errors?.['required']">Name is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Source Type</mat-label>
+      <mat-select formControlName="type" required>
+        <mat-option value="JIRA">JIRA</mat-option>
+        <mat-option value="DATABASE" disabled>Database (coming soon)</mat-option>
+        <mat-option value="FILE_UPLOAD" disabled>File Upload (coming soon)</mat-option>
+      </mat-select>
+      <mat-error *ngIf="dataSourceForm.get('type')?.errors?.['required']">Type is required</mat-error>
+    </mat-form-field>
+
+    <div *ngIf="dataSourceForm.get('type')?.value === 'JIRA'">
+      <mat-form-field appearance="outline">
+        <mat-label>Jira URL</mat-label>
+        <input matInput formControlName="jiraUrl" placeholder="https://yoursite.atlassian.net" required>
+        <mat-error *ngIf="dataSourceForm.get('jiraUrl')?.errors?.['required']">Jira URL is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email Address</mat-label>
+        <input matInput formControlName="jiraEmail" type="email" required>
+        <mat-error *ngIf="dataSourceForm.get('jiraEmail')?.errors?.['required']">Email is required</mat-error>
+        <mat-error *ngIf="dataSourceForm.get('jiraEmail')?.errors?.['email']">Must be a valid email</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>API Token</mat-label>
+        <input matInput formControlName="jiraToken" type="password" required>
+        <mat-error *ngIf="dataSourceForm.get('jiraToken')?.errors?.['required']">API Token is required</mat-error>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!dataSourceForm.valid">
+    Save
+  </button>
+</div>

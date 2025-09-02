@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../shared/components/results-dialog/api.service';
+import { ApiService } from '../../core/services/api.service';
 
 // Importeer de benodigde Angular Material modules
 import { MatCardModule } from '@angular/material/card';

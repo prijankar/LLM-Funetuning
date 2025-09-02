@@ -1,99 +1,22 @@
-// Stelt een achtergrondkleur in voor de hele pagina van deze component
-:host {
-  display: block;
-  background-color: #f0f2f5;
-  min-height: calc(100vh - 64px); // Zorgt dat de achtergrond het hele scherm vult
-}
-
-// Hoofdcontainer voor de tweekoloms-layout
-.layout-container {
-  display: flex;
-  gap: 24px;
+.data-sources-container {
   padding: 24px;
 }
 
-// Linkerkolom voor het formulier
-.form-column {
-  flex: 1; // Neemt 1 deel van de ruimte
-  min-width: 350px;
-}
-
-// Rechterkolom voor de resultaten
-.results-column {
-  flex: 1.5; // Neemt 1.5 deel van de ruimte (iets breder)
-  min-width: 350px;
-}
-
-// Styling die geldt voor zowel het formulier als de resultaten
-.form-column mat-card, .results-column {
-  border-radius: 8px !important; // !important om Material default te overschrijven
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-}
-
-// Specifieke styling voor de resultaten
-.results-column {
-  padding: 24px;
-  background-color: white;
-
-  h3 {
-    margin-top: 0;
-    color: #3f51b5; // Angular Material primary color
-  }
-}
-
-// Styling voor het formulier zelf
-.jira-form {
+.header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-// Rijen in de tabel lichten op bij mouse-over
-.mat-row:hover {
-  background-color: #f5f5f5;
-  cursor: pointer;
-}
-
-// Geselecteerde rijen krijgen een andere achtergrond
-.mat-row.selected {
-  background-color: #e3f2fd;
-}
-
-// Styling voor de tabellenkop
-.mat-header-cell {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.87);
-}
-
-// Knop om geselecteerde items te verwerken
-.table-actions {
-  margin: 16px 0;
-  display: flex;
-  justify-content: flex-end;
-}
-
-// Responsieve aanpassingen
-@media (max-width: 960px) {
-  .layout-container {
-    flex-direction: column;
-  }
-  
-  .form-column, .results-column {
-    width: 100%;
-    min-width: auto;
-  }
-}
-
-// Extra ruimte tussen formuliervelden
-mat-form-field {
+table {
   width: 100%;
-  margin-bottom: 8px;
 }
 
-// Styling voor de status message
-mat-card-footer {
-  padding: 16px;
-  color: #666;
-  font-style: italic;
-  text-align: center;
+.loading-spinner, .empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  color: #888;
 }

@@ -3,7 +3,7 @@ import {
 } from "./chunk-QUWI57SC.js";
 import {
   MatCommonModule
-} from "./chunk-VSU7C5O2.js";
+} from "./chunk-FN4JEXMO.js";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -118,4 +118,4 @@ export {
   MatPseudoCheckbox,
   MatPseudoCheckboxModule
 };
-//# sourceMappingURL=chunk-HMLDH2C2.js.map
+//# sourceMappingURL=chunk-AL2DKPMC.js.map
