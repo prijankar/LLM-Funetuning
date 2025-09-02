@@ -1,11 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
+// Interfaces die 1-op-1 overeenkomen met je backend DTO's
 export interface User {
+  id: number;
   username: string;
-  roles?: string;
+  email: string;
+  roles: string[];
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  tokenType: string;
+  user: User;
 }
 
 @Injectable({
@@ -13,76 +22,53 @@ export interface User {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
-  private authToken: string | null = null;
-  private userSubject = new BehaviorSubject<User | null>(null);
-  
-  // Public observable for components to subscribe to
+  private router = inject(Router);
+  private http = inject(HttpClient);
+
+  // BehaviorSubject zendt de user-status uit naar de hele app
+  private userSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public user$ = this.userSubject.asObservable();
-  
-  // For backward compatibility
-  public get user(): User | null {
-    return this.userSubject.value;
-  }
 
-  constructor(private http: HttpClient) {
-    this.loadAuthState();
-  }
-
-  register(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, credentials);
-  }
-
-  login(credentials: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response) => {
-        const token = 'Basic ' + btoa(credentials.username + ':' + credentials.password);
-        const user = { username: response.username };
-        this.setAuthState({ token, user });
+  // Inloggen via de correcte backend endpoint
+  login(credentials: { username: string, password: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => {
+        localStorage.setItem('authToken', response.accessToken);
+        localStorage.setItem('currentUser', JSON.stringify(response.user));
+        this.userSubject.next(response.user);
       })
     );
   }
 
-  getAuthToken(): string | null {
-    return this.authToken || localStorage.getItem('authToken');
+  // Registreren
+  register(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, data);
   }
 
+  // Uitloggen
   logout(): void {
-    this.setAuthState(null);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    this.userSubject.next(null);
+    this.router.navigate(['/auth/login']);
   }
 
-  private setAuthState(authData: { token: string; user: User } | null): void {
-    if (authData) {
-      this.authToken = authData.token;
-      this.userSubject.next(authData.user);
-      localStorage.setItem('authToken', authData.token);
-      localStorage.setItem('user', JSON.stringify(authData.user));
-    } else {
-      this.authToken = null;
-      this.userSubject.next(null);
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-    }
+  // Helper-functies die de rest van de app gebruikt
+  public getToken(): string | null {
+    return localStorage.getItem('authToken');
   }
 
-  loadAuthState(): void {
-    const token = localStorage.getItem('authToken');
-    const userStr = localStorage.getItem('user');
-    
-    if (token && userStr) {
-      this.authToken = token;
-      try {
-        const user = JSON.parse(userStr);
-        this.userSubject.next(user);
-      } catch (e) {
-        console.error('Failed to parse user from localStorage', e);
-        this.setAuthState(null);
-      }
-    } else {
-      this.setAuthState(null);
-    }
+  public isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 
-  isLoggedIn(): boolean {
-    return !!(this.authToken || localStorage.getItem('authToken'));
+  public hasRole(role: string): boolean {
+    const user = this.userSubject.value;
+    return user ? user.roles.includes(role) : false;
+  }
+
+  private getUserFromStorage(): User | null {
+    const userJson = localStorage.getItem('currentUser');
+    return userJson ? JSON.parse(userJson) : null;
   }
 }

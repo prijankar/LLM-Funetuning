@@ -6,6 +6,19 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+:root {
+  /* Global layout variables */
+  --toolbar-height: 48px; /* default */
+  --icon-size: 24px;
+}
+
+/* Override toolbar height on smaller screens */
+@media (max-width: 959px) {
+  :root {
+    --toolbar-height: 56px;
+  }
+}
+
 html {
   @include mat.theme((
     color: (

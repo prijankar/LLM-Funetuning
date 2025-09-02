@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { MainLayoutComponent } from './layout/main-layout';
+import { MainLayoutComponent } from './layout/main-layout'; 
 
 describe('App', () => {
   beforeEach(async () => {
@@ -18,6 +18,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(MainLayoutComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('mat-toolbar')?.textContent).toContain('LLM Fine-Tuning');
+    expect(compiled.querySelector('mat-toolbar')?.textContent).toContain('Q-LLM');
   });
 });

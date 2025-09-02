@@ -12,8 +12,10 @@ public class JiraQueryRequest {
     private String projectKey;
     private List<String> statuses;
     private List<String> fieldsToReturn;
-
-
+    
+    // Pagination
+    private int maxResults = 1000; // Default to max allowed by Jira
+    private String nextPageToken; // For pagination with enhanced search
 
     // Getters and Setters for all fields...
     public String getUrl() {
@@ -51,6 +53,22 @@ public class JiraQueryRequest {
 
     public void setSelectedKeys(List<String> selectedKeys) {
         this.selectedKeys = selectedKeys;
+    }
+
+    public int getMaxResults() {
+        return maxResults;
+    }
+    
+    public void setMaxResults(int maxResults) {
+        this.maxResults = Math.min(maxResults, 1000); // Jira max is 1000
+    }
+    
+    public String getNextPageToken() {
+        return nextPageToken;
+    }
+    
+    public void setNextPageToken(String nextPageToken) {
+        this.nextPageToken = nextPageToken;
     }
 
     private List<String> selectedKeys;
