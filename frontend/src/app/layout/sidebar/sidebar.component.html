@@ -1,0 +1,37 @@
+<!-- Sidebar Container -->
+<div class="sidebar" 
+     [class.collapsed]="isCollapsed" 
+     [class.pinned]="isPinned"
+     [class.mobile-view]="isMobileView">
+  
+  <div class="sidebar-header">
+    <div class="header-content">
+      @if (isMobileView) {
+        <button mat-icon-button (click)="toggleSidebar.emit()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+  
+  <mat-nav-list>
+    <!-- Menu Items -->
+    @for (item of menuItems; track item.path) {
+      <a mat-list-item 
+         [routerLink]="item.path"
+         routerLinkActive="active"
+         [matTooltip]="isCollapsed ? item.label : null"
+         matTooltipPosition="after">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        @if (!isCollapsed) {
+          <span matListItemTitle>{{ item.label }}</span>
+        }
+      </a>
+    }
+  </mat-nav-list>
+</div>
+
+<!-- Overlay for mobile -->
+@if (!isCollapsed && isMobileView) {
+  <div class="sidebar-overlay" (click)="toggleSidebar.emit()"></div>
+}

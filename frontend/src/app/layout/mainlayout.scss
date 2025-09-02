@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  height: 100vh; // Make sure the layout takes the full viewport height
+}
+
+.main-container {
+  display: grid;
+  // Define a grid with 2 rows: 
+  // 1. The header row, which takes the height it needs ('auto')
+  // 2. The content row, which takes all remaining space ('1fr')
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  width: 100%;
+}
+
+.content-wrapper {
+  display: flex; // Use flexbox for the sidebar and main content
+  overflow: hidden; // Prevent inner content from causing scrollbars on the layout
+}
+
+.app-content {
+  flex-grow: 1; // Allows the main content to fill the space next to the sidebar
+  padding: 24px;
+  overflow-y: auto; // Allow scrolling only within the main content area
+}

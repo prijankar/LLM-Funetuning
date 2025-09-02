@@ -1,0 +1,23 @@
+<mat-toolbar color="primary">
+  <div class="toolbar-left">
+    <button mat-icon-button (click)="toggleMenu()" class="menu-button" matTooltip="Menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <img src="icons/app-icon-192.png" alt="App Logo" class="logo">
+    <span class="app-title">Q-LLM</span>
+  </div>
+
+  <span class="toolbar-spacer"></span>
+
+  <div class="toolbar-right" *ngIf="isLoggedIn">
+    <div class="user-info">
+      <span class="username">
+        <mat-icon>account_circle</mat-icon>
+        {{ username }}
+      </span>
+      <button mat-icon-button (click)="onLogout()" matTooltip="Uitloggen">
+        <mat-icon>exit_to_app</mat-icon>
+      </button>
+    </div>
+  </div>
+</mat-toolbar>

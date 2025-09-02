@@ -1,0 +1,175 @@
+<div class="chat-container">
+  <mat-card class="chat-card">
+    <mat-card-header>
+      <mat-card-title>Chat Interface</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content class="messages-container">
+      <div *ngFor="let message of messages" 
+           class="message" 
+           [ngClass]="{'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot'}">
+        <div class="message-content">{{ message.content }}</div>
+        <div class="message-time">
+          {{ message.timestamp | date:'shortTime' }}
+        </div>
+      </div>
+      
+      <div *ngIf="isLoading" class="loading-indicator">
+        <mat-spinner diameter="24"></mat-spinner>
+        <span>Typing...</span>
+      </div>
+    </mat-card-content>
+    
+    <mat-card-actions class="input-container">
+      <form (ngSubmit)="sendMessage()" class="message-form" #messageForm="ngForm">
+        <mat-form-field appearance="outline" class="message-input">
+          <input matInput 
+                 [(ngModel)]="newMessage" 
+                 name="message" 
+                 placeholder="Type your message..." 
+                 [disabled]="isLoading"
+                 (keydown.enter)="$event.preventDefault(); sendMessage()"
+                 required>
+        </mat-form-field>
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                [disabled]="!newMessage.trim() || isLoading"
+                class="send-button">
+          Send
+        </button>
+        <button mat-button 
+                type="button" 
+                (click)="clearChat()"
+                [disabled]="messages.length === 0 || isLoading"
+                class="clear-button">
+          Clear Chat
+        </button>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<style>
+.chat-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.chat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  position: relative;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.bot-message {
+  align-self: flex-start;
+  background-color: #f1f1f1;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 4px;
+  text-align: right;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-message .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bot-message .message-time {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.message-status {
+  font-size: 0.7rem;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: #666;
+  gap: 8px;
+}
+
+.input-container {
+  padding: 16px;
+  border-top: 1px solid #eee;
+}
+
+.message-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.message-input {
+  flex-grow: 1;
+}
+
+.send-button, .clear-button {
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .message {
+    max-width: 90%;
+  }
+  
+  .message-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .message-input {
+    width: 100%;
+  }
+  
+  .send-button, .clear-button {
+    width: 100%;
+    margin: 4px 0;
+  }
+}
+</style>

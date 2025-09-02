@@ -1,0 +1,58 @@
+<div class="login-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>Login</h1>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          formControlName="username"
+
+          required>
+        <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+          Username is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input
+          type="password"
+          matInput
+          formControlName="password"
+          required>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          Password is required
+        </mat-error>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading">
+          <ng-container *ngIf="!isLoading; else loadingSpinner">
+            Login
+          </ng-container>
+          <ng-template #loadingSpinner>
+            <mat-spinner diameter="24"></mat-spinner>
+          </ng-template>
+        </button>
+      </div>
+
+      <div *ngIf="statusMessage" class="error-message" [class.error]="isError">
+        {{ statusMessage }}
+      </div>
+    </form>
+
+    <div class="auth-footer">
+      <button mat-button routerLink="/auth/register" [disabled]="isLoading">
+        Create an account
+      </button>
+    </div>
+  </div>
+</div>

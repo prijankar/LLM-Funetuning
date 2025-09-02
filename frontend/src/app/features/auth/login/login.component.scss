@@ -1,0 +1,260 @@
+@use '../_auth-styles.scss' as auth;
+
+// Apply modern auth page layout
+@include auth.auth-page-layout('.login-container');
+
+.login-container {
+  .auth-card {
+    .login-form {
+      @include auth.auth-form-field;
+      
+      // Add proper spacing between form fields
+      mat-form-field {
+        margin-bottom: 1.5rem;
+        width: 100%;
+        
+        .mat-form-field-wrapper {
+          padding-bottom: 0;
+        }
+        
+        .mat-form-field-infix {
+          border-top: 0.5em solid transparent;
+          padding: 0.5em 0;
+        }
+        
+        .mat-form-field-label-wrapper {
+          top: -1.25em;
+        }
+      }
+      
+      // Ensure error messages have proper spacing
+      mat-error {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.2;
+        min-height: 1.2em;
+      }
+      
+      .login-button {
+        margin-top: 1rem;
+        @include auth.auth-button(primary);
+        @include auth.loading-spinner;
+        
+        &.loading {
+          pointer-events: none;
+          
+          .button-content {
+            opacity: 0.7;
+          }
+          
+          .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          }
+        }
+      }
+      
+      .forgot-password {
+        color: var(--auth-primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        text-align: center;
+        display: block;
+        margin: 1.5rem 0;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: rgba(99, 102, 241, 0.1);
+          transform: translateY(-1px);
+        }
+      }
+      
+      // Add spacing between form sections
+      .form-actions {
+        margin: 1.5rem 0;
+      }
+      
+      .divider {
+        @include auth.auth-divider;
+      }
+      
+      .social-buttons {
+        display: flex;
+        gap: 16px;
+        margin-top: 8px;
+        
+        @media (max-width: 599px) {
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .google-button {
+          flex: 1;
+          @include auth.social-button(google);
+        }
+        
+        .github-button {
+          flex: 1;
+          @include auth.social-button(github);
+        }
+      }
+      
+      .status-message {
+        @include auth.status-message;
+      }
+      
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 16px 0;
+        
+        .mat-mdc-checkbox {
+          transform: scale(1.1);
+        }
+        
+        label {
+          font-size: 14px;
+          color: var(--auth-on-surface-variant);
+          cursor: pointer;
+          user-select: none;
+        }
+      }
+    }
+  }
+}
+
+// Enhanced floating input fields
+.floating-input-group {
+  margin-bottom: 24px;
+  @include auth.floating-label;
+  
+  .input-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--auth-on-surface-variant);
+    font-size: 20px;
+    pointer-events: none;
+    transition: color 0.3s ease;
+  }
+  
+  input:focus ~ .input-icon {
+    color: var(--auth-primary);
+  }
+}
+
+// Password strength indicator
+.password-strength {
+  margin-top: 8px;
+  
+  .strength-bar {
+    display: flex;
+    gap: 4px;
+    height: 3px;
+    margin-bottom: 8px;
+    
+    .bar {
+      flex: 1;
+      background: var(--auth-outline);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      
+      &.active {
+        &.weak { background: var(--auth-error); }
+        &.medium { background: var(--auth-warning); }
+        &.strong { background: var(--auth-success); }
+      }
+    }
+  }
+  
+  .strength-text {
+    font-size: 12px;
+    color: var(--auth-on-surface-variant);
+    font-weight: 500;
+    
+    &.weak { color: var(--auth-error); }
+    &.medium { color: var(--auth-warning); }
+    &.strong { color: var(--auth-success); }
+  }
+}
+
+// Responsive enhancements
+@media (max-width: 600px) {
+  .login-container {
+    padding: 12px;
+    
+    .auth-card {
+      padding: 28px 20px;
+      border-radius: 16px;
+      margin: 8px;
+      
+      .auth-header {
+        margin-bottom: 24px;
+        
+        .auth-logo {
+          width: 48px;
+          height: 48px;
+          margin-bottom: 16px;
+        }
+        
+        h1 {
+          font-size: 24px;
+        }
+        
+        p {
+          font-size: 14px;
+        }
+      }
+      
+      .login-form {
+        gap: 20px;
+        
+        .login-button {
+          height: 48px;
+          font-size: 15px;
+        }
+        
+        .social-buttons {
+          .social-button {
+            height: 48px;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :root {
+    --auth-surface: #1e293b;
+    --auth-surface-variant: #334155;
+    --auth-on-surface: #f1f5f9;
+    --auth-on-surface-variant: #94a3b8;
+    --auth-outline: #475569;
+  }
+  
+  .login-container {
+    &::after {
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+    }
+    
+    .auth-card {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      @include auth.glass-effect;
+    }
+  }
+}
