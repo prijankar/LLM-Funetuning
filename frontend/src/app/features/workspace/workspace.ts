@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 // Material Imports
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table'; 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,12 +29,12 @@ export class WorkspaceComponent implements OnInit {
 
   isLoading = true;
   dataSourceId: number | null = null;
-  tableData: any[] = [];
+  
+  // Use MatTableDataSource instead of a simple array
+  dataSource = new MatTableDataSource<any>();
   displayedColumns: string[] = ['select', 'key', 'summary'];
 
   filterForm: FormGroup;
-
-  // We'll populate these from a metadata endpoint later
   availableStatuses = ['To Do', 'In Progress', 'Done'];
   availableIssueTypes = ['Bug', 'Story', 'Task'];
 
@@ -51,9 +51,8 @@ export class WorkspaceComponent implements OnInit {
       this.dataSourceId = +idParam;
       this.fetchData(); // Initial data fetch
 
-      // When the form values change, re-fetch the data
       this.filterForm.valueChanges.pipe(
-        debounceTime(500), // Wait for 500ms after the user stops typing
+        debounceTime(500),
         distinctUntilChanged()
       ).subscribe(() => {
         this.fetchData();
@@ -63,12 +62,12 @@ export class WorkspaceComponent implements OnInit {
 
   fetchData(): void {
     if (!this.dataSourceId) return;
-
     this.isLoading = true;
     const filters = this.filterForm.value;
     
     this.apiService.queryJiraIssues(this.dataSourceId, filters).subscribe(data => {
-      this.tableData = data;
+      // Assign the data to the .data property of the MatTableDataSource
+      this.dataSource.data = data;
       this.isLoading = false;
     });
   }

@@ -10,6 +10,9 @@ export interface DataSource {
   connectionDetails: string;
   status: string;
   createdAt: Date;
+  updatedAt: Date;
+  url?: string; 
+  projectKey?: string; 
 }
 
 export interface CreateDataSourceRequest {
@@ -17,7 +20,12 @@ export interface CreateDataSourceRequest {
   type: string;
   connectionDetails: string;
 }
-
+export interface SyncedProject {
+  id: number;
+  name: string;
+  type: string;
+  status: string;
+}
 export interface FineTuneRequest {
   modelId: string;
   epochs: number;
@@ -52,4 +60,44 @@ export class ApiService {
   startFineTuning(request: FineTuneRequest): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/finetune/start`, request);
   }
+    // ADDING  THIS METHOD FOR SYNCING
+  syncDataSource(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/data-sources/${id}/sync`, {});
+  }
+
+  // ADDING THIS METHOD FOR DELETING
+  deleteDataSource(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/data-sources/${id}`);
+  }
+
+  // ADDING THIS METHOD FOR UPDATING ...
+  updateDataSource(id: number, request: CreateDataSourceRequest): Observable<DataSource> {
+  return this.http.put<DataSource>(`${this.apiUrl}/data-sources/${id}`, request);
+}
+
+// ADDING THIS METHOD FOR GETTING SYNCED PROJECTS
+getSyncedProjects(): Observable<DataSource[]> {
+  return this.http.get<DataSource[]>(`${this.apiUrl}/data-sources/synced`);
+}
+
+// ADDING THIS METHOD FOR TESTING JIRA CONNECTION IN DIALOG
+testJiraConnection(request: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/data-sources/test-connection`, request);
+}
+
+// ADDING THIS METHOD FOR GETTING IMPORTED DATA
+getImportedData(id: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/workspace/imported-data/${id}`);
+}
+
+// ADDING THIS METHOD FOR GETTING IMPORTED DATA
+queryJiraIssues(id: number, filters: any): Observable<any[]> {
+  return this.http.post<any[]>(`${this.apiUrl}/workspace/query/${id}`, filters);  
+}
+
+// ADDING THIS METHOD FOR TESTING JIRA CONNECTION IN DATA-SOURCE
+testConnection(id: number): Observable<any> {
+  // You will need to create a corresponding backend endpoint for this
+  return this.http.post(`${this.apiUrl}/data-sources/${id}/test-connection`, {});
+}
 }

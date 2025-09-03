@@ -24,6 +24,11 @@
         <input matInput formControlName="jiraUrl" placeholder="https://yoursite.atlassian.net" required>
         <mat-error *ngIf="dataSourceForm.get('jiraUrl')?.errors?.['required']">Jira URL is required</mat-error>
       </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Project Key</mat-label>
+        <input matInput formControlName="projectKey" placeholder="e.g., PROJ" required>
+        <mat-error *ngIf="dataSourceForm.get('projectKey')?.errors?.['required']">Project Key is required</mat-error>
+      </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Email Address</mat-label>
@@ -41,9 +46,30 @@
   </form>
 </div>
 
+<div class="connection-test">
+  <button mat-stroked-button color="primary" type="button" (click)="onTestConnection()" [disabled]="!dataSourceForm.valid || isTesting">
+    <mat-spinner *ngIf="isTesting" diameter="20"></mat-spinner>
+    <span *ngIf="!isTesting">Test Connection</span>
+  </button>
+  <span *ngIf="connectionStatus === 'SUCCESS'" class="status-success">✅ Connection Successful!</span>
+  <span *ngIf="connectionStatus === 'FAILED'" class="status-failed">❌ Connection Failed.</span>
+</div>
+
+<button mat-raised-button color="primary" (click)="onSave()" [disabled]="connectionStatus !== 'SUCCESS' || !dataSourceForm.valid">
+  Save
+</button>
 <div mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!dataSourceForm.valid">
+  
+  <button *ngIf="!isEditMode" mat-raised-button color="primary" (click)="onSave()" [disabled]="!dataSourceForm.valid">
     Save
   </button>
+  
+  <button *ngIf="isEditMode" mat-raised-button color="primary" (click)="onSave()" [disabled]="!dataSourceForm.valid">
+    Update
+  </button>
+  <button *ngIf="isEditMode" mat-icon-button color="accent" matTooltip="Enable Editing" (click)="onEdit()">
+    <mat-icon>edit</mat-icon>
+  </button>
 </div>
+  

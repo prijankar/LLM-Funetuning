@@ -36,6 +36,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/model-config/model-config')
           .then(m => m.ModelConfigComponent)
       },
+      {
+        path: 'projects',
+        loadComponent: () => import('./features/projects/projects.component')
+          .then(m => m.ProjectsComponent)
+      },
+      {
+        path: 'workspace/:id',
+        loadComponent: () => import('./features/workspace/workspace')
+          .then(m => m.WorkspaceComponent)
+      },  
 
       // Fallback for protected routes
       { path: '**', redirectTo: 'home' }

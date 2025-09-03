@@ -41,9 +41,10 @@ export class SidebarComponent {
   menuItems: MenuItem[] = [
     { label: 'Home', icon: 'home', path: '/home' },
     { label: 'Data Bronnen', icon: 'storage', path: '/data-sources' },
+    { label: 'Projects', icon: 'assignment', path: '/projects' },
     { label: 'Model Configuratie', icon: 'tune', path: '/model-config' },
     { label: 'Chat Interface', icon: 'chat_bubble', path: '/chat' },
-    { label: 'Project HERHKB', icon: 'assignment', path: '/project-herhkb' },
+    
   ];
 
   constructor() {}

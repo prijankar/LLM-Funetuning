@@ -1,22 +1,26 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ApiService, CreateDataSourceRequest } from '../../core/services/api.service';
+import { ApiService, CreateDataSourceRequest, DataSource } from '../../core/services/api.service';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-// Material Dialog Imports
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+// Material Imports
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { SharedModule } from "@app/shared/shared.module";
+
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-add-source-dialog',
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatButtonModule, MatSelectModule
-  ],
+    MatInputModule, MatButtonModule, MatSelectModule,
+    SharedModule, MatChipsModule  
+],
   templateUrl: './add-source-dialog.html',
   styleUrls: ['./add-source-dialog.scss']
 })
@@ -26,9 +30,13 @@ export class AddSourceDialogComponent implements OnInit {
   public dialogRef = inject(MatDialogRef<AddSourceDialogComponent>);
 
   dataSourceForm: FormGroup;
+  isEditMode = false;
+  isTesting = false;
+  connectionStatus: 'UNTESTED' | 'SUCCESS' | 'FAILED' = 'UNTESTED';
+  
+  constructor(@Inject(MAT_DIALOG_DATA) public data: DataSource) {
+    this.isEditMode = !!this.data;
 
-  constructor() {
-    // The form starts with only the common fields
     this.dataSourceForm = this.fb.group({
       name: ['', Validators.required],
       type: ['', Validators.required],
@@ -36,23 +44,62 @@ export class AddSourceDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Listen for changes in the 'type' dropdown to add/remove fields
-    this.dataSourceForm.get('type')?.valueChanges.subscribe(type => {
+    this.f['type'].valueChanges.subscribe(type => {
       this.updateFormForType(type);
     });
-  }
 
+    if (this.isEditMode) {
+      this.dataSourceForm.patchValue({
+        name: this.data.name,
+        type: this.data.type,
+      });
+
+      if (this.data.type === 'JIRA') {
+        const details = JSON.parse(this.data.connectionDetails);
+        this.dataSourceForm.patchValue({
+          jiraUrl: details.url,
+          projectKey: details.projectKey, // Use correct 'projectKey'
+          jiraEmail: details.email,
+          jiraToken: details.token,
+        });
+      }
+    }
+  }
+    onTestConnection(): void {
+      if (!this.dataSourceForm.valid) return;
+
+      this.isTesting = true;
+      this.connectionStatus = 'UNTESTED';
+      const formValue = this.dataSourceForm.value;
+      const testRequest = {
+          url: formValue.jiraUrl,
+          email: formValue.jiraEmail,
+          token: formValue.jiraToken,
+          projectKey: formValue.projectKey
+      };
+
+      this.apiService.testJiraConnection(testRequest).subscribe({
+          next: () => {
+              this.connectionStatus = 'SUCCESS';
+              this.isTesting = false;
+          },
+          error: () => {
+              this.connectionStatus = 'FAILED';
+              this.isTesting = false;
+          }
+      });
+  }
   get f() { return this.dataSourceForm.controls; }
 
   updateFormForType(type: string | null): void {
-    // Always remove old controls first
     this.dataSourceForm.removeControl('jiraUrl');
     this.dataSourceForm.removeControl('jiraEmail');
     this.dataSourceForm.removeControl('jiraToken');
+    this.dataSourceForm.removeControl('projectKey'); 
 
-    // If type is JIRA, add the specific controls
     if (type === 'JIRA') {
       this.dataSourceForm.addControl('jiraUrl', this.fb.control('', Validators.required));
+      this.dataSourceForm.addControl('projectKey', this.fb.control('', Validators.required)); // This is correct
       this.dataSourceForm.addControl('jiraEmail', this.fb.control('', [Validators.required, Validators.email]));
       this.dataSourceForm.addControl('jiraToken', this.fb.control('', Validators.required));
     }
@@ -61,36 +108,44 @@ export class AddSourceDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
-
+  onEdit(): void {
+    // Enable all form fields for editing
+    this.dataSourceForm.enable();
+  }
   onSave(): void {
-    if (this.dataSourceForm.invalid) {
+    if (this.dataSourceForm.invalid || this.connectionStatus !== 'SUCCESS') {
       return;
     }
-
     const formValue = this.dataSourceForm.value;
     let connectionDetails = {};
 
-    // Build the connectionDetails JSON based on the type
     if (formValue.type === 'JIRA') {
       connectionDetails = {
         url: formValue.jiraUrl,
         email: formValue.jiraEmail,
-        token: formValue.jiraToken
+        token: formValue.jiraToken,
+        projectKey: formValue.projectKey // CORRECTED: Was 'projectKeY'
       };
     }
 
     const request: CreateDataSourceRequest = {
       name: formValue.name,
       type: formValue.type,
-      // Convert the details object to a JSON string for the backend
       connectionDetails: JSON.stringify(connectionDetails)
     };
 
-    this.apiService.createDataSource(request).subscribe({
-      next: (newDataSource) => {
-        this.dialogRef.close(newDataSource);
-      },
-      error: (err) => console.error('Failed to create data source', err)
-    });
+    
+    if (this.isEditMode) {
+      this.apiService.updateDataSource(this.data.id, request).subscribe({
+        next: (res) => this.dialogRef.close(res),
+        error: (err) => console.error('Failed to update data source', err)
+      });
+    } else {
+      this.apiService.createDataSource(request).subscribe({
+        next: (res) => this.dialogRef.close(res),
+        error: (err) => console.error('Failed to create data source', err)
+      });
+    }
+    
   }
 }

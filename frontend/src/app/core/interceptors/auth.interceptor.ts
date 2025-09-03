@@ -6,7 +6,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  // Check if a token exists AND if the request is NOT for authentication
+  // Attach the token to all API calls except for the auth endpoints
   if (token && !req.url.includes('/api/auth/')) {
     const clonedReq = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)
@@ -14,6 +14,5 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(clonedReq);
   }
 
-  // For login, register, or requests without a token, send the original request
   return next(req);
 };
