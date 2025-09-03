@@ -60,7 +60,7 @@ public class SecurityConfig {
                 ).permitAll()
                 
                 // User endpoints
-                .requestMatchers("/api/chat/**", "/api/data-sources/**")
+                .requestMatchers("/api/chat/**", "/api/data-sources/**", "/api/workspace/**")
                     .hasAnyRole("USER", "ADMIN")
                 
                 // Admin endpoints

@@ -11,4 +11,6 @@ public class DataSourceDto {
     private String connectionDetails; // We send this as a JSON string
     private String status;
     private Date createdAt;
+    private String url;
+    private String projectKey;
 }

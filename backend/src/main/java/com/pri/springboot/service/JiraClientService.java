@@ -14,7 +14,7 @@ import java.util.Base64;
 
 @Service
 public class JiraClientService {
-    private static final int MAX_RESULTS_LIMIT = 500; // Jira's maximum per request
+    private static final int MAX_RESULTS_LIMIT = 1000; // Jira's maximum per request
     private static final int DEFAULT_BATCH_SIZE = 200; // Reasonable batch size for pagination
     private final ObjectMapper objectMapper = new ObjectMapper();
 

@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.util.Date;
 
 @Entity
@@ -26,9 +23,10 @@ public class DataSource {
     @Column(nullable = false)
     private String type; // e.g., "JIRA", "DATABASE", "FILE_UPLOAD"
 
-    // This tells Hibernate to map this String to the JSONB database column
-    @Column(name = "connection_details", columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
+
+// This tells Hibernate to treat it as a regular, long text string.
+// PostgreSQL will correctly store this string in the JSONB column.
+    @Column(name = "connection_details", columnDefinition = "TEXT")
     private String connectionDetails;
 
     private String status;
