@@ -1,0 +1,15 @@
+<div class="projects-container">
+    <h1>Projects Workspace</h1>
+    <p>Select a synced project to begin preparing data for fine-tuning.</p>
+    <div class="projects-grid">
+      <mat-card *ngFor="let project of projects" class="project-card" [routerLink]="['/workspace', project.id]">
+        <mat-card-header>
+          <mat-card-title>{{ project.name }}</mat-card-title>
+          <mat-card-subtitle>{{ project.type }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Status: {{ project.status }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>

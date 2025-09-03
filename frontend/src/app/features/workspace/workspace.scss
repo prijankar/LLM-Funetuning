@@ -1,0 +1,43 @@
+.workspace-container {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    height: calc(100vh - 64px - 48px); // Full height minus header and padding
+  }
+  
+  .filter-panel {
+    flex: 0 0 280px; // Fixed width of 280px, don't grow or shrink
+    background-color: #fafafa;
+    padding: 16px;
+    border-right: 1px solid #e0e0e0;
+  }
+  
+  .data-panel {
+    flex: 1; // Take up all remaining space
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  table {
+    width: 100%;
+  }
+  
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .placeholder-text {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .description-cell {
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
