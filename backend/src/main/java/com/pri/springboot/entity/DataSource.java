@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "data_sources")
@@ -28,6 +30,9 @@ public class DataSource {
 // PostgreSQL will correctly store this string in the JSONB column.
     @Column(name = "connection_details", columnDefinition = "TEXT")
     private String connectionDetails;
+
+    @OneToMany(mappedBy = "dataSource", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ImportedData> importedData = new HashSet<>();
 
     private String status;
 
