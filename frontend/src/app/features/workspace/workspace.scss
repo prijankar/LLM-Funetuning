@@ -1,10 +1,17 @@
+// Workspace container
 .workspace-container {
-  padding: 24px;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
+// Filter bar
 .filter-bar {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
   
   mat-form-field {
@@ -12,18 +19,102 @@
   }
 }
 
+// Active filters container
 .active-filters-container {
   margin-bottom: 24px;
 }
 
+// Data grid container
 .data-grid-container {
-  height: 600px;
+  flex: 1;
+  min-height: 500px;
+  height: calc(100vh - 250px);
   width: 100%;
+  
+  .ag-theme-alpine {
+    height: 100%;
+    width: 100%;
+    
+    // Style for links in cells
+    a {
+      color: #1976d2;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    // Header styles
+    .ag-header-cell {
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    // Row styles
+    .ag-row {
+      border-color: #e9ecef;
+    }
+  }
 }
 
+// Loading spinner
 .spinner-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: 300px;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: #6c757d;
+}
+
+// No data message
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6c757d;
+  font-style: italic;
+}
+
+// Status badges
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 500;
+  text-align: center;
+  
+  &.status-done {
+    background-color: #e3fcef;
+    color: #006644;
+  }
+  
+  &.status-in-progress {
+    background-color: #e3f0ff;
+    color: #0747a6;
+  }
+  
+  &.status-todo {
+    background-color: #f4f5f7;
+    color: #42526e;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    gap: 12px;
+    
+    mat-form-field {
+      width: 100%;
+    }
+  }
+  
+  .data-grid-container {
+    height: calc(100vh - 300px);
+  }
 }
