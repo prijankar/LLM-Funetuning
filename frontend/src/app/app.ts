@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';  
+
 // Root component
 @Component({
   selector: 'app-root',
