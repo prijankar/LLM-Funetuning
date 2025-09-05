@@ -2,27 +2,28 @@
   padding: 24px;
 }
 
-.filter-form {
+.filter-bar {
   display: flex;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   
   mat-form-field {
     min-width: 200px;
   }
 }
 
+.active-filters-container {
+  margin-bottom: 24px;
+}
+
 .data-grid-container {
-  position: relative;
+  height: 600px;
+  width: 100%;
 }
 
 .spinner-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 48px;
-}
-
-table {
-  width: 100%;
+  height: 300px;
 }

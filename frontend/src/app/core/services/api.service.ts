@@ -34,6 +34,10 @@ export interface FineTuneRequest {
   loraR: number;
   loraAlpha: number;
 }
+export interface JiraProjectMetadata {
+  issueTypes: string[];
+  statuses: string[];
+}
 
 // --- SERVICE CLASS ---
 @Injectable({
@@ -100,4 +104,12 @@ testConnection(id: number): Observable<any> {
   // You will need to create a corresponding backend endpoint for this
   return this.http.post(`${this.apiUrl}/data-sources/${id}/test-connection`, {});
 }
+
+// ADDING THIS METHOD FOR GETTING JIRA METADATA
+getJiraMetadata(id: number): Observable<JiraProjectMetadata> {
+  return this.http.get<JiraProjectMetadata>(`${this.apiUrl}/workspace/metadata/${id}`);
+}
+
+
+
 }

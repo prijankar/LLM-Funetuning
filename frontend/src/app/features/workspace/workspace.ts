@@ -1,23 +1,30 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '../../core/services/api.service';
+import { ApiService, JiraProjectMetadata } from '../../core/services/api.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+
+// AG Grid Imports
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridReadyEvent, GridApi } from 'ag-grid-community';
 
 // Material Imports
-import { MatTableDataSource, MatTableModule } from '@angular/material/table'; 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-workspace',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatTableModule, MatProgressSpinnerModule, 
-    MatCheckboxModule, MatFormFieldModule, MatSelectModule
+    CommonModule,
+    ReactiveFormsModule,
+    AgGridAngular,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatCheckboxModule
   ],
   templateUrl: './workspace.html',
   styleUrls: ['./workspace.scss']
@@ -26,49 +33,116 @@ export class WorkspaceComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private apiService = inject(ApiService);
   private fb = inject(FormBuilder);
+  private gridApi!: GridApi;
 
   isLoading = true;
+  rowData: any[] = [];
+
   dataSourceId: number | null = null;
-  
-  // Use MatTableDataSource instead of a simple array
-  dataSource = new MatTableDataSource<any>();
-  displayedColumns: string[] = ['select', 'key', 'summary'];
+
+  colDefs: ColDef[] = [
+    { headerName: 'Type', field: 'type', checkboxSelection: true, headerCheckboxSelection: true },
+    { headerName: 'Key', field: 'key', sortable: true },
+    { headerName: 'Summary', field: 'summary', sortable: true, flex: 1 },
+    { headerName: 'Status', field: 'status', sortable: true },
+  ];
+
+  gridOptions: GridOptions = {
+    rowSelection: 'multiple',
+    suppressRowClickSelection: true
+  };
 
   filterForm: FormGroup;
-  availableStatuses = ['To Do', 'In Progress', 'Done'];
-  availableIssueTypes = ['Bug', 'Story', 'Task'];
+  availableStatuses: string[] = [];
+  availableIssueTypes: string[] = [];
 
   constructor() {
     this.filterForm = this.fb.group({
       status: [null],
-      issueTypes: [null]
+      issueTypes: [[]]
     });
   }
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      this.dataSourceId = +idParam;
-      this.fetchData(); // Initial data fetch
+      const dataSourceId = +idParam;
+      this.dataSourceId = dataSourceId;
 
-      this.filterForm.valueChanges.pipe(
-        debounceTime(500),
-        distinctUntilChanged()
-      ).subscribe(() => {
-        this.fetchData();
+      this.apiService.getJiraMetadata(dataSourceId).subscribe(metadata => {
+        this.availableStatuses = metadata.statuses;
+        this.availableIssueTypes = metadata.issueTypes;
+        this.fetchData(dataSourceId);
+      });
+
+      this.filterForm.valueChanges.subscribe(filters => {
+        this.applyFilters(filters);
       });
     }
   }
 
-  fetchData(): void {
-    if (!this.dataSourceId) return;
-    this.isLoading = true;
-    const filters = this.filterForm.value;
-    
-    this.apiService.queryJiraIssues(this.dataSourceId, filters).subscribe(data => {
-      // Assign the data to the .data property of the MatTableDataSource
-      this.dataSource.data = data;
-      this.isLoading = false;
+  onGridReady(params: GridReadyEvent) {
+    console.log('AG Grid ready');
+    this.gridApi = params.api;
+    setTimeout(() => {
+      if (this.gridApi) {
+        this.gridApi.sizeColumnsToFit();
+        console.log('Grid columns resized to fit');
+      }
     });
+  }
+
+  fetchData(id: number): void {
+    this.isLoading = true;
+    console.log('Fetching data for source ID:', id);
+
+    this.apiService.getImportedData(id).subscribe({
+      next: (data) => {
+        console.log('Raw API response:', data);
+
+        // Flatten de data zodat AG Grid het direct kan gebruiken
+        this.rowData = data.map(item => {
+          const parsed = JSON.parse(item.rawContent);
+          return {
+            key: parsed.key,
+            type: parsed.fields?.issuetype?.name || '',
+            summary: parsed.fields?.summary || '',
+            status: parsed.fields?.status?.name || ''
+          };
+        });
+
+        console.log('Flattened rowData:', this.rowData);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching data:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  applyFilters(filters: any): void {
+    if (!this.gridApi) return;
+
+    const filterModel: any = {};
+
+    if (filters.status) {
+      filterModel['status'] = {
+        type: 'equals',
+        filter: filters.status
+      };
+    }
+
+    if (filters.issueTypes && filters.issueTypes.length > 0) {
+      filterModel['type'] = {
+        operator: 'OR',
+        conditions: filters.issueTypes.map((type: string) => ({
+          type: 'equals',
+          filter: type
+        }))
+      };
+    }
+
+    this.gridApi.setFilterModel(filterModel);
   }
 }
