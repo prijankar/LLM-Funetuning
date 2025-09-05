@@ -7,8 +7,10 @@ import com.pri.springboot.dto.DataSourceDto;
 import com.pri.springboot.dto.JiraQueryRequest;
 import com.pri.springboot.dto.TestJiraConnectionRequest;
 import com.pri.springboot.entity.DataSource;
+import com.pri.springboot.entity.ImportedData;
 import com.pri.springboot.entity.TrainingIssue;
 import com.pri.springboot.repository.DataSourceRepository;
+import com.pri.springboot.repository.ImportedDataRepository;
 import com.pri.springboot.repository.TrainingIssueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     private final ModelMapper modelMapper;
     private final StringEncryptor encryptor;
     private final ObjectMapper objectMapper;
+    private final ImportedDataRepository importedDataRepository;
 
     @Override
     public List<DataSourceDto> getAllDataSources() {
@@ -93,49 +96,49 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     @Transactional
     public void syncDataSource(Long id) throws Exception {
+        // Step 1: Find the saved data source configuration
         DataSource dataSource = dataSourceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("DataSource not found with id: " + id));
 
-        if (!"JIRA".equals(dataSource.getType())) {
-            throw new UnsupportedOperationException("Sync is only supported for JIRA data sources.");
-        }
-
+        // Step 2: Decrypt the connection details
         String decryptedDetails = encryptor.decrypt(dataSource.getConnectionDetails());
         JsonNode details = objectMapper.readTree(decryptedDetails);
+        String projectKey = details.get("projectKey").asText();
 
-        // --- SAFER WAY TO READ JSON VALUES ---
-        // We now check if the node exists before trying to read it.
-        String url = getNodeText(details, "url");
-        String email = getNodeText(details, "email");
-        String token = getNodeText(details, "token");
-        String projectKey = getNodeText(details, "projectKey");
-        // ------------------------------------
-
+        // Step 3: Prepare the Jira request
         JiraQueryRequest jiraRequest = new JiraQueryRequest();
-        jiraRequest.setUrl(url);
-        jiraRequest.setEmail(email);
-        jiraRequest.setToken(token);
-        jiraRequest.setFieldsToReturn(List.of("summary", "description", "status", "issuetype"));
+        jiraRequest.setUrl(details.get("url").asText());
+        jiraRequest.setEmail(details.get("email").asText());
+        jiraRequest.setToken(details.get("token").asText());
+        // Request all the fields you want to have available for training
+        jiraRequest.setFieldsToReturn(List.of("summary", "description", "status", "issuetype", "reporter", "assignee", "timespent", "labels"));
 
+        // Build a broad JQL to fetch everything for the project
         String jql = String.format("project = '%s'", projectKey);
 
+        // Step 4: Fetch all issues from Jira
         String rawJsonResponse = jiraClientService.fetchIssues(jiraRequest, jql);
         JsonNode rootNode = objectMapper.readTree(rawJsonResponse);
         JsonNode issuesNode = rootNode.get("issues");
 
-        trainingIssueRepository.deleteAll();
-        for (JsonNode issueNode : issuesNode) {
-            TrainingIssue trainingIssue = new TrainingIssue();
-            trainingIssue.setIssueKey(issueNode.get("key").asText());
-            trainingIssue.setSummary(issueNode.at("/fields/summary").asText());
-            trainingIssue.setDescription(issueNode.at("/fields/description").asText());
-            trainingIssueRepository.save(trainingIssue);
+        // Step 5: Perform the "Full Refresh"
+        // First, delete all old data for this source
+        importedDataRepository.deleteByDataSourceId(id);
+
+        // Then, loop through the new data and save it
+        if (issuesNode != null && issuesNode.isArray()) {
+            for (JsonNode issueNode : issuesNode) {
+                ImportedData newRecord = new ImportedData();
+                newRecord.setDataSource(dataSource);
+                newRecord.setRawContent(issueNode.toString());
+                importedDataRepository.save(newRecord);
+            }
         }
 
+        // Step 6: Update the status of the data source
         dataSource.setStatus("SYNCED");
         dataSourceRepository.save(dataSource);
     }
-    // ... inside DataSourceServiceImpl.java ...
 
     @Override
     public DataSourceDto updateDataSource(Long id, CreateDataSourceRequest request) {
