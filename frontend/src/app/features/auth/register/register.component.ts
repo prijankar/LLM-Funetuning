@@ -47,11 +47,16 @@ export class RegisterComponent {
 
   constructor() {
     this.registerForm = this.formBuilder.group({
-      // ADDED: firstName, lastName, and acceptTerms to match the new form
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      username: ['', [
+        Validators.required, 
+        Validators.minLength(3)
+      ]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(8),
+        Validators.pattern('^[a-zA-Z0-9!@#$%^&*]{8,}$')
+      ]],
       confirmPassword: ['', Validators.required],
       acceptTerms: [false, Validators.requiredTrue]
     }, {
@@ -73,19 +78,34 @@ export class RegisterComponent {
     }
 
     this.loading = true;
-    const { firstName, lastName, email, password } = this.registerForm.value;
-
-    // The backend only needs username, email, password. We'll create the username from the email.
-    const username = email?.split('@')[0];
+    const { username, email, password } = this.registerForm.value;
 
     this.authService.register({ username, email, password })
       .subscribe({
         next: () => {
-          this.router.navigate(['/auth/login'], { queryParams: { registered: true } });
+          this.router.navigate(['/auth/login'], { 
+            queryParams: { 
+              registered: true,
+              email: email
+            } 
+          });
         },
         error: (err) => {
-          this.errorMessage = err.error?.error || 'Registration failed. Please try again.';
           this.loading = false;
+          // Handle different types of errors
+          if (err.error && typeof err.error === 'object') {
+            if (err.error.error === 'Email is already in use!') {
+              this.errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+              // Highlight the email field
+              this.registerForm.get('email')?.setErrors({ emailInUse: true });
+            } else if (err.error.message) {
+              this.errorMessage = err.error.message;
+            } else {
+              this.errorMessage = 'Registration failed. Please check your details and try again.';
+            }
+          } else {
+            this.errorMessage = 'An unexpected error occurred. Please try again later.';
+          }
         }
       });
   }

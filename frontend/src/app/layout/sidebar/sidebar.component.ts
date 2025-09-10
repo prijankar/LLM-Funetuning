@@ -42,6 +42,7 @@ export class SidebarComponent {
     { label: 'Home', icon: 'home', path: '/home' },
     { label: 'Data Bronnen', icon: 'storage', path: '/data-sources' },
     { label: 'Projects', icon: 'assignment', path: '/projects' },
+    { label: 'Sprint Explorer', icon: 'tune', path: '/sprint-explorer' },
     { label: 'Model Configuratie', icon: 'tune', path: '/model-config' },
     { label: 'Chat Interface', icon: 'chat_bubble', path: '/chat' },
     

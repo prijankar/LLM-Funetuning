@@ -1,32 +1,24 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService, JiraProjectMetadata } from '../../core/services/api.service';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ApiService, CreateTrainingSetRequest } from '../../core/services/api.service';
 
 // AG Grid Imports
-
-import { ColDef, GridOptions, GridReadyEvent, GridApi, FirstDataRenderedEvent } from 'ag-grid-community';
+import { AgGridModule } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridReadyEvent, GridApi, SelectionChangedEvent, FirstDataRenderedEvent } from 'ag-grid-community';
 
 // Material Imports
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { AgGridModule } from 'ag-grid-angular';
-
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-workspace',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
-    MatCheckboxModule,
-    AgGridModule
+    CommonModule, MatProgressSpinnerModule, AgGridModule,
+    MatButtonModule, MatIconModule, MatSnackBarModule
   ],
   templateUrl: './workspace.html',
   styleUrls: ['./workspace.scss']
@@ -34,216 +26,147 @@ import { AgGridModule } from 'ag-grid-angular';
 export class WorkspaceComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private apiService = inject(ApiService);
-  private fb = inject(FormBuilder);
   private gridApi!: GridApi;
-
+  private snackBar = inject(MatSnackBar);
+  selectedRows: any[] = [];
+  
   isLoading = true;
   rowData: any[] = [];
-
   dataSourceId: number | null = null;
 
-  colDefs: ColDef[] = [
-    { 
-      headerName: 'Key', 
-      field: 'key', 
-      sortable: true, 
-      filter: true,
-      width: 150,
-      cellRenderer: (params: any) => {
-        return `<a href="https://qualogycaribbean.atlassian.net/browse/${params.value}" target="_blank">${params.value}</a>`;
-      }
-    },
-    { 
-      headerName: 'Type', 
-      field: 'type', 
-      sortable: true, 
-      filter: true,
-      width: 120
-    },
-    { 
-      headerName: 'Status', 
-      field: 'status', 
-      sortable: true, 
-      filter: true,
-      width: 130,
-      cellStyle: (params: any): any => {
-        if (!params.value) return { color: 'inherit', backgroundColor: 'inherit' };
-        const status = params.value.toLowerCase();
-        
-        if (status === 'done') {
-          return { 
-            color: '#006644',
-            backgroundColor: '#e3fcef',
-            fontWeight: 'bold',
-            padding: '2px 8px',
-            borderRadius: '3px',
-            textAlign: 'center'
-          };
-        } else if (status.includes('progress')) {
-          return {
-            color: '#0747a6',
-            backgroundColor: '#e3f0ff',
-            fontWeight: 'bold',
-            padding: '2px 8px',
-            borderRadius: '3px',
-            textAlign: 'center'
-          };
-        } else if (status === 'open' || status.includes('to do')) {
-          return {
-            color: '#42526e',
-            backgroundColor: '#f4f5f7',
-            fontWeight: 'bold',
-            padding: '2px 8px',
-            borderRadius: '3px',
-            textAlign: 'center'
-          };
-        }
-        
-        return {
-          color: '#000000',
-          backgroundColor: '#f0f0f0',
-          fontWeight: 'bold',
-          padding: '2px 8px',
-          borderRadius: '3px',
-          textAlign: 'center'
-        };
-      }
-    },
-    { 
-      headerName: 'Summary', 
-      field: 'summary', 
-      sortable: true,
-      filter: true,
-      flex: 1,
-      minWidth: 200,
-      cellStyle: { 
-        whiteSpace: 'normal',
-        lineHeight: '1.4',
-        padding: '8px 0'
-      },
-      autoHeight: true
-    },
-    { 
-      headerName: 'Assignee', 
-      field: 'assignee', 
-      sortable: true,
-      filter: true,
-      width: 150,
-      valueFormatter: (params: any) => {
-        return params.value?.displayName || 'Unassigned';
-      }
-    },
-    { 
-      headerName: 'Time Spent', 
-      field: 'timespent', 
-      sortable: true,
-      width: 120,
-      valueFormatter: (params: any) => {
-        if (!params.value) return '0m';
-        const hours = Math.floor(params.value / 3600);
-        const minutes = Math.floor((params.value % 3600) / 60);
-        return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-      },
-      comparator: (valueA: number, valueB: number) => (valueA || 0) - (valueB || 0)
-    }
-  ];
+  // Define colDefs inside the constructor where 'this' is available
+  colDefs: ColDef[];
 
   gridOptions: GridOptions = {
     rowSelection: 'multiple',
     suppressRowClickSelection: true,
-    suppressCellFocus: true,
+    onSelectionChanged: this.onSelectionChanged.bind(this),
     defaultColDef: {
       resizable: true,
       sortable: true,
       filter: true,
       floatingFilter: true,
-      menuTabs: ['filterMenuTab']
     },
     onFirstDataRendered: this.onFirstDataRendered.bind(this)
   };
 
-  constructor() { }
+  constructor() {
+    // --- FIX #2: Initialize colDefs in the constructor ---
+    this.colDefs = [
+      { 
+        headerName: 'Key', 
+        field: 'key', 
+        width: 150,
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        cellRenderer: (params: any) => `<a href="https://qualogycaribbean.atlassian.net/browse/${params.value}" target="_blank">${params.value}</a>`
+      },
+      { headerName: 'Type', field: 'type', width: 120 },
+      { headerName: 'Status', field: 'status', width: 130, cellStyle: this.statusCellStyle },
+      { headerName: 'Summary', field: 'summary', flex: 1, minWidth: 200, autoHeight: true, cellStyle: { whiteSpace: 'normal', lineHeight: '1.4', padding: '8px 0' } },
+      { headerName: 'Assignee', field: 'assignee', width: 150, valueFormatter: p => p.value?.displayName || 'Unassigned' },
+      { headerName: 'Time Spent', field: 'timespent', width: 120, valueFormatter: this.formatTimeSpent },
+      { headerName: 'Original Estimate', field: 'originalEstimate', width: 150, valueFormatter: this.formatTimeSpent },
+    ];
+  }
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      const dataSourceId = +idParam;
-      this.dataSourceId = dataSourceId;
-      this.fetchData(dataSourceId);
+      this.dataSourceId = +idParam;
+      this.fetchData(this.dataSourceId);
     }
   }
 
   onGridReady(params: GridReadyEvent) {
-    console.log('AG Grid ready');
     this.gridApi = params.api;
-    // We'll handle sizing after data is loaded
   }
 
   onFirstDataRendered(params: FirstDataRenderedEvent) {
-    console.log('AG Grid first data rendered');
     if (this.gridApi) {
       this.gridApi.sizeColumnsToFit();
-      // Ensure the grid is properly sized after a small delay
-      setTimeout(() => {
-        if (this.gridApi) {
-          this.gridApi.resetRowHeights();
-          this.gridApi.sizeColumnsToFit();
-        }
-      }, 100);
     }
   }
 
   fetchData(id: number): void {
     this.isLoading = true;
-    console.log('Fetching data for source ID:', id);
-
     this.apiService.getImportedData(id).subscribe({
       next: (data) => {
-        console.log('Raw API response length:', data?.length);
-        
-        try {
-          // Flatten the data for AG Grid
-          this.rowData = data.map(item => {
+        this.rowData = data
+          .map(item => {
             try {
-              const parsed = typeof item.rawContent === 'string' 
-                ? JSON.parse(item.rawContent) 
-                : item.rawContent;
-              
+              const parsed = JSON.parse(item.rawContent);
               return {
+                id: item.id, // <-- FIX #1: Include the database ID
                 key: parsed?.key || 'N/A',
                 type: parsed?.fields?.issuetype?.name || 'Unknown',
                 summary: parsed?.fields?.summary || 'No summary',
                 status: parsed?.fields?.status?.name || 'No status',
                 assignee: parsed?.fields?.assignee,
-                timespent: parsed?.fields?.timespent
+                timespent: parsed?.fields?.timespent,
+                originalEstimate: parsed?.fields?.timeoriginalestimate
               };
-            } catch (parseError) {
-              console.error('Error parsing item:', item, parseError);
+            } catch (e) {
               return null;
             }
-          }).filter(item => item !== null); // Remove any null items from failed parses
-
-          console.log('Processed rowData length:', this.rowData.length);
-          if (this.rowData.length > 0) {
-            console.log('First row sample:', JSON.stringify(this.rowData[0], null, 2));
-          }
-          
-          // Force Angular change detection
-          setTimeout(() => {
-            this.rowData = [...this.rowData]; // This will trigger change detection
-          });
-        } catch (error) {
-          console.error('Error processing data:', error);
-        }
+          })
+          .filter(item => item !== null);
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error fetching data:', err);
-        this.rowData = [];
-      },
-      complete: () => {
         this.isLoading = false;
-        console.log('Data loading completed. Loading state:', this.isLoading);
       }
     });
+  }
+
+  onSelectionChanged(event: SelectionChangedEvent): void {
+    this.selectedRows = event.api.getSelectedRows();
+  }
+
+  saveSelection(): void {
+    const name = prompt("Please enter a name for this training set:", "Jira Training Set");
+    if (name && this.dataSourceId) {
+      const selectedIds = this.selectedRows.map(row => row.id);
+      
+      const request: CreateTrainingSetRequest = {
+        name: name,
+        dataSourceId: this.dataSourceId,
+        importedDataIds: selectedIds
+      };
+
+      this.apiService.createTrainingSet(request).subscribe({
+        next: () => {
+          this.snackBar.open(`Training set '${name}' saved successfully!`, 'Close', { duration: 3000 });
+          this.gridApi.deselectAll();
+        },
+        error: (err) => {
+          this.snackBar.open('Error saving training set.', 'Close', { duration: 5000 });
+          console.error(err);
+        }
+      });
+    }
+  }
+
+  formatTimeSpent(params: any): string {
+    if (!params.value) return '0m';
+    const hours = Math.floor(params.value / 3600);
+    const minutes = Math.floor((params.value % 3600) / 60);
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  }
+
+  statusCellStyle(params: any): any {
+    if (!params.value) return null;
+    const status = params.value.toLowerCase();
+    const baseStyle = { padding: '2px 8px', borderRadius: '3px', textAlign: 'center' };
+
+    if (status === 'done') {
+      return { ...baseStyle, color: '#006644', backgroundColor: '#e3fcef' };
+    } else if (status.includes('progress')) {
+      return { ...baseStyle, color: '#0747a6', backgroundColor: '#e3f0ff' };
+    } else if (status === 'open' || status.includes('to do')) {
+      return { ...baseStyle, color: '#42526e', backgroundColor: '#f4f5f7' };
+    }
+    return null;
   }
 }

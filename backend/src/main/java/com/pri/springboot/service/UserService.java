@@ -19,6 +19,7 @@ public interface UserService {
     UserDto createUser(String username, String email, String password);
     User createUser(String username, String email, String password, Set<String> roles);
     User getUserByUsername(String username);
+    User getUserByEmail(String email);
     void addRoleToUser(String username, ERole role);
     void updateUserRole(Long userId, ERole role);
 }

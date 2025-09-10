@@ -8,7 +8,7 @@ import com.pri.springboot.dto.JiraQueryRequest;
 import com.pri.springboot.dto.TestJiraConnectionRequest;
 import com.pri.springboot.entity.DataSource;
 import com.pri.springboot.entity.ImportedData;
-import com.pri.springboot.entity.TrainingIssue;
+import com.pri.springboot.entity.TrainingIssue;    
 import com.pri.springboot.repository.DataSourceRepository;
 import com.pri.springboot.repository.ImportedDataRepository;
 import com.pri.springboot.repository.TrainingIssueRepository;
@@ -111,7 +111,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         jiraRequest.setEmail(details.get("email").asText());
         jiraRequest.setToken(details.get("token").asText());
         // Request all the fields you want to have available for training
-        jiraRequest.setFieldsToReturn(List.of("summary", "description", "status", "issuetype", "reporter", "assignee", "timespent", "labels"));
+        jiraRequest.setFieldsToReturn(List.of("summary", "description", "status", "issuetype", "reporter", "assignee", "timespent", "labels", "timeoriginalestimate"));
 
         // Build a broad JQL to fetch everything for the project
         String jql = String.format("project = '%s'", projectKey);

@@ -1,0 +1,136 @@
+// Sprint Explorer Container
+.sprint-explorer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+
+  h2 {
+    margin: 0 0 1rem 0;
+    color: #3f51b5;
+    font-weight: 500;
+  }
+
+  // Controls container
+  .controls-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+
+    mat-form-field {
+      min-width: 250px;
+      flex: 1;
+
+      &.disabled {
+        opacity: 0.7;
+        pointer-events: none;
+      }
+    }
+
+    .test-button {
+      height: 56px;
+      align-self: flex-end;
+    }
+  }
+
+  // Status message
+  .status-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #d32f2f;
+    background-color: #fde8e8;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  // Grid container
+  .grid-container {
+    flex: 1;
+    min-height: 300px;
+    width: 100%;
+    position: relative;
+
+    ag-grid-angular {
+      width: 100%;
+      height: 100%;
+    }
+
+    // AG Grid theme overrides
+    .ag-theme-quartz {
+      height: 100%;
+      width: 100%;
+      
+      .ag-header {
+        font-weight: 500;
+      }
+      
+      .ag-row {
+        border-bottom: 1px solid #f0f0f0;
+      }
+      
+      .ag-cell {
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+      }
+    }
+  }
+
+  // Empty state
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    text-align: center;
+    padding: 2rem;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      color: #9e9e9e;
+    }
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      color: #424242;
+    }
+
+    p {
+      margin: 0;
+      color: #757575;
+    }
+  }
+
+  // Loading overlay
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+
+    mat-spinner {
+      margin: 0 auto;
+    }
+
+    p {
+      margin-top: 1rem;
+      color: #424242;
+    }
+  }
+}

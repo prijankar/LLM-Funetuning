@@ -46,12 +46,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/workspace/workspace')
           .then(m => m.WorkspaceComponent)
       },  
-
-      // Fallback for protected routes
-      { path: '**', redirectTo: 'home' }
+      {
+        path: 'sprint-explorer',
+        loadComponent: () => import('./features/sprint-explorer/sprint-explorer')
+        .then(m => m.SprintExplorerComponent)
+      }
     ]
   },
-  
-  // Fallback for all other routes
+
+  // A single fallback for all unknown routes
   { path: '**', redirectTo: '' }
 ];
