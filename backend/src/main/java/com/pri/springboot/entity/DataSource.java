@@ -31,7 +31,7 @@ public class DataSource {
     @Column(name = "connection_details", columnDefinition = "TEXT")
     private String connectionDetails;
 
-    @OneToMany(mappedBy = "dataSource", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "dataSource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ImportedData> importedData = new HashSet<>();
 
     private String status;

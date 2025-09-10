@@ -38,7 +38,29 @@ export interface JiraProjectMetadata {
   issueTypes: string[];
   statuses: string[];
 }
+export interface Issue {
+  key: string;
+  summary: string;
+  type: string;
+  status: string;
+}
 
+export interface Epic {
+  epicKey: string;
+  epicName: string;
+  issues: Issue[];
+}
+
+export interface SprintView {
+  sprintName: string;
+  epics: Epic[];
+  issuesWithoutEpic: Issue[];
+}
+export interface CreateTrainingSetRequest {
+  name: string;
+  dataSourceId: number;
+  importedDataIds: number[];
+}
 // --- SERVICE CLASS ---
 @Injectable({
   providedIn: 'root'
@@ -80,8 +102,8 @@ export class ApiService {
 }
 
 // ADDING THIS METHOD FOR GETTING SYNCED PROJECTS
-getSyncedProjects(): Observable<DataSource[]> {
-  return this.http.get<DataSource[]>(`${this.apiUrl}/data-sources/synced`);
+getSyncedProjects(): Observable<SyncedProject[]> {
+  return this.http.get<SyncedProject[]>(`${this.apiUrl}/workspace/projects`);
 }
 
 // ADDING THIS METHOD FOR TESTING JIRA CONNECTION IN DIALOG
@@ -110,6 +132,20 @@ getJiraMetadata(id: number): Observable<JiraProjectMetadata> {
   return this.http.get<JiraProjectMetadata>(`${this.apiUrl}/workspace/metadata/${id}`);
 }
 
+// ADDING THIS METHOD FOR GETTING JIRA METADATA
+getSprintView(dataSourceId: number, sprintName: string): Observable<SprintView> {
+  const url = `${this.apiUrl}/sprint-explorer/${dataSourceId}?sprintName=${encodeURIComponent(sprintName)}`;
+  console.log('Fetching sprint view from:', url); // Debug log
+  return this.http.get<SprintView>(url);
+}
 
+// ADDING THIS METHOD FOR GETTING SPRINTS
+getSprints(dataSourceId: number): Observable<string[]> {
+  return this.http.get<string[]>(`${this.apiUrl}/sprint-explorer/${dataSourceId}/sprints`);
+}
 
+// ADDING THIS METHOD FOR CREATING TRAINING SET
+createTrainingSet(request: CreateTrainingSetRequest): Observable<any> {
+  return this.http.post(`${this.apiUrl}/training-sets`, request);
+}
 }

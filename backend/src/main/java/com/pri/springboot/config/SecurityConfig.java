@@ -56,7 +56,9 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    "/swagger-ui.html",
+                        "/api/sprint-explorer/**",
+                        "api/training-sets/**"
                 ).permitAll()
                 
                 // User endpoints

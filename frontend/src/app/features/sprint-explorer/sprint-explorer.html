@@ -1,0 +1,57 @@
+<div class="sprint-explorer-container">
+  <h2>Sprint Explorer</h2>
+  
+  <div class="controls-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Select Project</mat-label>
+      <mat-select [(ngModel)]="selectedProjectId" (selectionChange)="onProjectChange($event)">
+        <mat-option *ngFor="let project of projects; trackBy: trackProjectById" [value]="project.id">
+          {{ project.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" [class.disabled]="!selectedProjectId">
+      <mat-label>Select Sprint</mat-label>
+      <mat-select 
+        [(ngModel)]="selectedSprintName" 
+        [disabled]="!selectedProjectId" 
+        (selectionChange)="onSprintChange($event)">
+        <mat-option *ngFor="let sprint of sprints; trackBy: trackSprintById" [value]="sprint">
+          {{ sprint }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="errorMessage" class="status-message">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="ag-theme-quartz grid-container">
+    <div style="width: 100%; height: 100%;">
+      <ag-grid-angular *ngIf="!isLoading && rowData.length > 0"
+        class="ag-theme-quartz"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        [gridOptions]="gridOptions"
+        [defaultColDef]="gridOptions.defaultColDef"
+        [animateRows]="true"
+        [pagination]="true"
+        [paginationPageSize]="20"
+        (gridReady)="onGridReady($event)">
+      </ag-grid-angular>
+      <div *ngIf="!isLoading && rowData.length === 0" class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <h3>No sprint data available</h3>
+        <p>Select a project and sprint to view issues, or load test data to see an example.</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading sprint data...</p>
+  </div>
+</div>
