@@ -11,16 +11,19 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    
+
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username")
     Optional<User> findByUsername(@Param("username") @NonNull String username);
-    
+
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email")
+    Optional<User> findByEmail(@Param("email") @NonNull String email);
+
     @Override
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
     @NonNull
     Optional<User> findById(@Param("id") @NonNull Long id);
-    
+
     boolean existsByUsername(@NonNull String username);
-    
+
     boolean existsByEmail(@NonNull String email);
 }

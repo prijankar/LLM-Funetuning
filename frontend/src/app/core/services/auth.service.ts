@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 // Interfaces die 1-op-1 overeenkomen met je backend DTO's
@@ -30,12 +30,18 @@ export class AuthService {
   public user$ = this.userSubject.asObservable();
 
   // Inloggen via de correcte backend endpoint
-  login(credentials: { username: string, password: string }): Observable<AuthResponse> {
+  login(credentials: { username?: string; email?: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        localStorage.setItem('authToken', response.accessToken);
-        localStorage.setItem('currentUser', JSON.stringify(response.user));
-        this.userSubject.next(response.user);
+      tap((response: AuthResponse) => {
+        if (response.accessToken) {
+          localStorage.setItem('authToken', response.accessToken);
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          this.userSubject.next(response.user);
+        }
+      }),
+      catchError((error: any) => {
+        console.error('Login error:', error);
+        return throwError(() => error);
       })
     );
   }

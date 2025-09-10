@@ -142,6 +142,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    }
+
+    @Override
     @Transactional
     public void addRoleToUser(String username, ERole roleName) {
         User user = userRepository.findByUsername(username)
